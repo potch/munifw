@@ -1,6 +1,6 @@
 # munifw
 
-A signal-driven framework for small applications.
+A signal-driven framework for small applications
 
 [current file sizes](./sizes.md)
 

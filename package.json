@@ -1,8 +1,8 @@
 {
-  "name": "y",
+  "name": "@potch/munifw",
   "version": "1.0.0",
-  "description": "a dinky framework for little apps",
-  "main": "src/munitfw.js",
+  "description": "A signal-driven framework for small applications",
+  "main": "src/munifw.js",
   "scripts": {
     "test": "vitest run",
     "start": "npx onchange -ik 'src/*.js' 'test/*.test.js' build.sh -- npm run dev",
@@ -12,10 +12,7 @@
   "author": "Potch",
   "license": "ISC",
   "devDependencies": {
-    "@potch/tinyserve": "^1.3.0",
-    "htm": "^3.1.1",
     "onchange": "^7.1.0",
-    "rollup": "^4.27.4",
     "terser": "^5.29.1",
     "vitest": "^2.1.6"
   }
