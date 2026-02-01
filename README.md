@@ -26,7 +26,7 @@ Create an event bus. The bus consists of two methods, an `emit` and an `on` meth
 ```js
 function clock() {
   const start = Date.now();
-  const [onUpdate, emitUpdate] = event();
+  const [emitUpdate, onUpdate] = event();
   setInterval(() => {
     emitUpdate(start - Date.now());
   }, 1000);

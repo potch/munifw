@@ -44,8 +44,8 @@ export const signal = (value, eq = (a, b) => a === b) => {
     },
     get [val]() {
       // if we're in an effect callback, register as a dep
-      if (context[0]) {
-        context[0].add(this);
+      if (context.at(-1)) {
+        context.at(-1).add(this);
       }
       return value;
     },
