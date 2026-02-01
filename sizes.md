@@ -2,5 +2,5 @@
 
 file                 |  original |  minified |   gzip
 :---                 |      ---: |      ---: |   ---: 
-src/munifw.js        |      5433 |      1670 |    822
-src/ssr.js           |      2260 |      1027 |    611
+src/munifw.js        |      5380 |      1695 |    831
+src/ssr.js           |      2397 |      1088 |    649

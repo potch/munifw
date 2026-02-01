@@ -65,6 +65,9 @@ const nodeMock = {
     if (nodeType == 3) {
       return self.textContent;
     }
+    if (nodeType == 8) {
+      return `<!--${self.data}-->`;
+    }
     return "";
   },
   get innerHTML() {
@@ -82,8 +85,11 @@ const createElement = (tagName) =>
     [cn]: [],
   });
 
+const createComment = (data) => _node(8, { data });
+
 export default {
   createElement,
+  createComment,
   // used by ssr instead of getElementById
   find: (el, id) => {
     let current,

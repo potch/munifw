@@ -182,12 +182,9 @@ export const mount = (fn, ...explicitDependencies) => {
       collect(
         onEffect,
         () => {
-          const newEl = fn();
+          const newEl = fn() ?? document.createComment("");
           if (currentEl) {
-            // swap or remove new element
-            if (newEl) {
-              currentEl.replaceWith(newEl);
-            }
+            currentEl.replaceWith(newEl);
           }
           currentEl = newEl;
         },

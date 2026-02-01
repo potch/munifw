@@ -1,6 +1,6 @@
 import ssr from "../src/ssr.js";
 vi.stubGlobal("document", ssr);
-import { dom } from "../src/munifw.js";
+import { dom, mount, signal } from "../src/munifw.js";
 
 describe("createElement", () => {
   it("makes tags", () => {
@@ -20,6 +20,15 @@ describe("createElement", () => {
     expect(spy).toHaveBeenCalled();
     expect(el.tagName).toBe("div");
     expect(el.nodeType).toBe(1);
+  });
+});
+
+describe("createComment", () => {
+  it("creates", () => {
+    const c = ssr.createComment("foo");
+    expect(c.nodeType).toBe(8);
+    expect(c.data).toBe("foo");
+    expect(c.outerHTML).toBe("<!--foo-->");
   });
 });
 
@@ -60,5 +69,26 @@ describe("nodeMock", () => {
     expect(el.outerHTML).toBe('<div><a href="foo">bar</a><img><b></b></div>');
     expect(el.innerHTML).toBe('<a href="foo">bar</a><img><b></b>');
     expect(a.innerHTML).toBe("bar");
+  });
+});
+
+describe("mount", () => {
+  it("basic operation", () => {
+    const el = mount(() => dom("div"));
+    expect(el.outerHTML).toBe("<div></div>");
+  });
+  it("signal operation", () => {
+    const s = signal(1);
+    const el = dom(
+      "div",
+      mount(() => dom("span", s.value))
+    );
+    expect(el.outerHTML).toBe("<div><span>1</span></div>");
+    s.value = 2;
+    expect(el.outerHTML).toBe("<div><span>2</span></div>");
+  });
+  it("null operation", () => {
+    const el = mount(() => null);
+    expect(el.outerHTML).toBe("<!---->");
   });
 });
