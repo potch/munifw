@@ -276,6 +276,16 @@ describe("fw", () => {
       });
       expect(fn).toHaveBeenCalled();
       expect(cb).toHaveBeenCalled();
+
+      const throwCb = vi.fn();
+
+      expect(() =>
+        using(throwCb, () => {
+          throw "oops";
+        })
+      ).toThrowError();
+
+      expect(throwCb).toHaveBeenCalled();
     });
     it("collect", () => {
       const [emit, on] = event();

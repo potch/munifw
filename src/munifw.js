@@ -2,10 +2,16 @@
 
 // prop to monitor for changes
 const val = "value";
-const isObj = (o) => typeof o === "object";
+const isObj = (o) => o !== null && typeof o === "object";
 const map = (a, fn) => [...a].map(fn);
 // utility to run a function and ensure cleanup after
-export const using = (cb, fn) => (fn(), cb());
+export const using = (cb, fn) => {
+  try {
+    fn();
+  } finally {
+    cb();
+  }
+};
 // collect event teardowns within the scope of a function
 export const collect = (onEvent, fn, collection = []) => (
   using(
@@ -69,18 +75,21 @@ export const effect = (fn, ...explicitDependencies) => {
     // prevents effects effecting themselves
     if (!inUpdate) {
       inUpdate = true;
-      fn((...args) => emitEffect(effect(...args)));
-      inUpdate = false;
+      try {
+        fn((...args) => emitEffect(effect(...args)));
+      } finally {
+        inUpdate = false;
+      }
     }
   };
 
-  update();
-
-  const teardown = map(context.at(-1), (dependency) =>
-    dependency.watch(update)
-  );
-
-  context.pop();
+  let teardown;
+  try {
+    update();
+    teardown = map(context.at(-1), (dependency) => dependency.watch(update));
+  } finally {
+    context.pop();
+  }
 
   return () => map(teardown, (fn) => fn());
 };
