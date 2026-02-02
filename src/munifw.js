@@ -102,6 +102,7 @@ export const computed = (fn, ...explicitDependencies) => {
     () => (out[val] = fn(out[val])),
     ...explicitDependencies
   );
+  emitEffect(out.teardown);
   return out;
 };
 
