@@ -4,6 +4,8 @@
 const val = "value";
 const isObj = (o) => o !== null && typeof o === "object";
 const map = (a, fn) => [...a].map(fn);
+export const isSignal = (o) => isObj(o) && val in o;
+
 // utility to run a function and ensure cleanup after
 export const using = (cb, fn) => {
   try {
@@ -32,6 +34,8 @@ export const event = (watchers = new Set()) => [
 
 // used for computed/effect bookkeeping
 const context = [];
+const batchPending = new Set();
+let batchDepth = 0;
 
 // reactive value primitive, notifies when .value changes
 export const signal = (value, eq = (a, b) => a === b) => {
@@ -72,6 +76,10 @@ export const effect = (fn, ...explicitDependencies) => {
   context.push(new Set(explicitDependencies));
 
   const update = () => {
+    // batch support
+    if (batchDepth > 0) {
+      return batchPending.add(update);
+    }
     // prevents effects effecting themselves
     if (!inUpdate) {
       inUpdate = true;
@@ -106,12 +114,24 @@ export const computed = (fn, ...explicitDependencies) => {
   return out;
 };
 
+export const batch = (fn) => {
+  batchDepth++;
+  try {
+    fn();
+  } finally {
+    if (--batchDepth === 0) {
+      map(batchPending, (fn) => fn());
+      batchPending.clear();
+    }
+  }
+};
+
 // credit to @developit/preact for logic here
 export const setProp = (el, key, value) => {
   if (key == "ref" && val in value) {
     // if key is "ref" and value is signal-like, treat value as signal and set el as value
     value[val] = el;
-  } else if (isObj(value) && val in value) {
+  } else if (isSignal(value)) {
     // if value is signal-like, mount an effect to update prop
     emitEffect(effect(() => setProp(el, key, value[val])));
   } else if (typeof value === "function" || isObj(value) || key in el) {

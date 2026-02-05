@@ -1,6 +1,6 @@
 {
   "name": "@potch/munifw",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "description": "A signal-driven framework for small applications",
   "main": "src/munifw.js",
   "scripts": {

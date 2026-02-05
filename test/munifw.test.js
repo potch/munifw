@@ -9,6 +9,7 @@ import {
   onEffect,
   using,
   collect,
+  batch,
 } from "../src/munifw.js";
 
 describe("fw", () => {
@@ -213,6 +214,41 @@ describe("fw", () => {
       unwatch();
       s1.value = 2;
       expect(fn).not.toHaveBeenCalled();
+    });
+  });
+
+  describe("batch", () => {
+    it("batches emits", () => {
+      const fn = vi.fn();
+      const a = signal(1);
+      const b = signal(2);
+      effect(fn, a, b);
+      expect(fn).toHaveBeenCalledTimes(1);
+      batch(() => {
+        a.value = 3;
+        expect(fn).toHaveBeenCalledTimes(1);
+        b.value = 5;
+        expect(fn).toHaveBeenCalledTimes(1);
+      });
+      expect(fn).toHaveBeenCalledTimes(2);
+    });
+    it("nests", () => {
+      const fn = vi.fn();
+      const a = signal(1);
+      const b = signal(2);
+      effect(fn, a, b);
+      expect(fn).toHaveBeenCalledTimes(1);
+      batch(() => {
+        a.value = 3;
+        expect(fn).toHaveBeenCalledTimes(1);
+        batch(() => {
+          a.value = 4;
+          b.value = 2;
+        });
+        b.value = 5;
+        expect(fn).toHaveBeenCalledTimes(1);
+      });
+      expect(fn).toHaveBeenCalledTimes(2);
     });
   });
 
