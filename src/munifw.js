@@ -164,7 +164,7 @@ export const setProp = (el, key, value) => {
 export const assign = (a, b) => {
   if (b) {
     Object.entries(b).forEach(([key, value]) => {
-      if (a.nodeType) {
+      if (a.nodeType || a.setProperty) {
         // check if a is an HTMLElement (duck type for SSR)
         setProp(a, key, value);
       } else if (isObj(a[key]) && isObj(value)) {
