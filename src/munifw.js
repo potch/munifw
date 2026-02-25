@@ -18,7 +18,7 @@ export const using = (cb, fn) => {
 export const collect = (onEvent, fn, collection = []) => (
   using(
     onEvent((o) => collection.push(o)),
-    fn
+    fn,
   ),
   collection
 );
@@ -108,7 +108,7 @@ export const computed = (fn, ...explicitDependencies) => {
   const out = signal();
   out.teardown = effect(
     () => (out[val] = fn(out[val])),
-    ...explicitDependencies
+    ...explicitDependencies,
   );
   emitEffect(out.teardown);
   return out;
@@ -134,6 +134,9 @@ export const setProp = (el, key, value) => {
   } else if (isSignal(value)) {
     // if value is signal-like, mount an effect to update prop
     emitEffect(effect(() => setProp(el, key, value[val])));
+  } else if (el.setProperty) {
+    // for style props
+    el.setProperty(key, value);
   } else if (typeof value === "function" || isObj(value) || key in el) {
     // is value a function, object, or is the key an extant prop?
     // situations where we always set prop
@@ -201,26 +204,29 @@ export const mount = (fn, ...explicitDependencies) => {
   const teardowns = [];
   let currentEl;
   emitEffect(
-    effect(() => {
-      // disconnect existing effects
-      while (teardowns.length) {
-        try {
-          teardowns.pop()();
-        } catch (e) {}
-      }
-      // track any effects created when generating mounted DOM
-      collect(
-        onEffect,
-        () => {
-          const newEl = fn() ?? document.createComment("");
-          if (currentEl) {
-            currentEl.replaceWith(newEl);
-          }
-          currentEl = newEl;
-        },
-        teardowns
-      );
-    }, ...explicitDependencies)
+    effect(
+      () => {
+        // disconnect existing effects
+        while (teardowns.length) {
+          try {
+            teardowns.pop()();
+          } catch (e) {}
+        }
+        // track any effects created when generating mounted DOM
+        collect(
+          onEffect,
+          () => {
+            const newEl = fn() ?? document.createComment("");
+            if (currentEl) {
+              currentEl.replaceWith(newEl);
+            }
+            currentEl = newEl;
+          },
+          teardowns,
+        );
+      },
+      ...explicitDependencies,
+    ),
   );
   return currentEl;
 };
