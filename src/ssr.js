@@ -89,6 +89,7 @@ const createComment = (data) => _node(8, { data });
 
 export default {
   createElement,
+  createElementNS: (ns, tagName) => createElement(tagName),
   createComment,
   // used by ssr instead of getElementById
   find: (el, id) => {

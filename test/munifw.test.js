@@ -168,7 +168,7 @@ describe("fw", () => {
       const innerEffects = collect(onEffect, () =>
         effect((effect) => {
           effect(fn, s2);
-        })
+        }),
       );
       s2.value = 2;
       while (innerEffects.length) innerEffects.pop()();
@@ -260,6 +260,10 @@ describe("fw", () => {
       expect(document.createElement).toHaveBeenCalledWith("div");
       expect(el.append).toHaveBeenCalledWith(2, 3, 4);
     });
+    it("creates with classes", () => {
+      const el = dom("div.foo.bar", "hi");
+      expect(el.className).toBe("foo bar");
+    });
     it("creates with optional props", () => {
       const el = dom("div");
       expect(document.createElement).toHaveBeenCalledWith("div");
@@ -269,6 +273,14 @@ describe("fw", () => {
       expect(document.createElement).toHaveBeenCalledWith("div");
       expect(el.append).toHaveBeenCalledWith("hello", child);
     });
+    it("creates with svg", () => {
+      const el = dom("svg:rect");
+      expect(document.createElementNS).toHaveBeenCalledWith(
+        "http://www.w3.org/2000/svg",
+        "rect",
+      );
+    });
+
     it("sets attributes", () => {
       const fn = vi.fn();
       const s = signal();
@@ -318,7 +330,7 @@ describe("fw", () => {
       expect(() =>
         using(throwCb, () => {
           throw "oops";
-        })
+        }),
       ).toThrowError();
 
       expect(throwCb).toHaveBeenCalled();

@@ -1,6 +1,7 @@
 // @potch/minifw/fw.js without so much code golfing
 
 // prop to monitor for changes
+const SVG = "http://www.w3.org/2000/svg";
 const val = "value";
 const isObj = (o) => o !== null && typeof o === "object";
 const map = (a, fn) => [...a].map(fn);
@@ -184,7 +185,13 @@ export const dom = (tag, props, ...children) => {
   if (typeof tag === "function") {
     el = mount(() => tag(props, children));
   } else {
-    el = document.createElement(tag);
+    let [tagName, ...classes] = tag.split(".");
+    if (tagName.startsWith("svg:")) {
+      el = document.createElementNS(SVG, tagName.split(":")[1]);
+    } else {
+      el = document.createElement(tagName);
+    }
+    el.className = [el.className, ...classes].join(" ").trim();
     // allow optional props syntax
     if (props && isObj(props) && !props.nodeType) {
       assign(el, props);
