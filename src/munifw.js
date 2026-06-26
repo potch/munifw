@@ -132,6 +132,8 @@ export const setProp = (el, key, value) => {
   if (key == "ref" && val in value) {
     // if key is "ref" and value is signal-like, treat value as signal and set el as value
     value[val] = el;
+  } else if (el.namespaceURI.endsWith("svg")) {
+    el.setAttribute(key, value);
   } else if (isSignal(value)) {
     // if value is signal-like, mount an effect to update prop
     emitEffect(effect(() => setProp(el, key, value[val])));
@@ -191,7 +193,7 @@ export const dom = (tag, props, ...children) => {
     } else {
       el = document.createElement(tagName);
     }
-    el.className = [el.className, ...classes].join(" ").trim();
+    el.setAttribute("class", [el.className, ...classes].join(" ").trim());
     // allow optional props syntax
     if (props && isObj(props) && !props.nodeType) {
       assign(el, props);
